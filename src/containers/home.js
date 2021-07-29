@@ -9,7 +9,6 @@ export default function Home() {
   const [state, setState] = useState([]);
   const [user, setUser] = useState({});
   const [userinfo, setUserinfo] = useState("");
-  const [searchuser, setSearchuser] = useState();
   const [edituser, setEdituser] = useState();
   const [editusername, setEditusername] = useState();
 
@@ -83,8 +82,6 @@ export default function Home() {
       localStorage.clear();
       localStorage.setItem("users", JSON.stringify(getUsers));
       setState(getUsers);
-      setEdituser();
-      setSearchuser();
       alert(`User  with username: ${username} has been removed`);
     } else {
       alert(`User with username: ${username} is not removed`);
@@ -99,7 +96,6 @@ export default function Home() {
     if (!getUser) {
       alert(`User  with username: ${username} does not exist`);
     }
-    setSearchuser();
   };
   const updateUser = (edituser) => {
     const users = JSON.parse(localStorage.getItem("users"));
@@ -159,122 +155,121 @@ export default function Home() {
           onClick={() => filterTable(userinfo)}
         >
           Search
-        </Button>{" "}
+        </Button>
         &nbsp;&nbsp;
         <p></p>
- 
         <button className="register" onClick={() => formDisplay()}>
           Enter new user
         </button>
       </div>
-        <modal>
-          <div id="form" style={{ display: "none" }}>
-            <Container>
-              <h3> Register New User</h3>
-              <Form>
-                <button class="btn-close" onClick={() => formDisplay()}>X</button>
-                <Form.Group controlId="form.Gender">
-                  <Form.Label>Gender: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter gender"
-                    value={user.Gender}
-                    onChange={(e) => {
-                      setUser({ ...user, Gender: e.target.value });
-                    }}
-                    autoComplete="off"
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.Name">
-                  <Form.Label>Name: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter full name"
-                    value={user.name}
-                    onChange={(e) => {
-                      setUser({ ...user, Name: e.target.value });
-                    }}
-                    autoComplete="off"
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.Email">
-                  <Form.Label>Email: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    autocomplete="false"
-                    placeholder="Enter email"
-                    value={user.email}
-                    onChange={(e) => {
-                      setUser({ ...user, Email: e.target.value });
-                    }}
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.Username">
-                  <Form.Label>Username: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter username"
-                    value={user.username}
-                    onChange={(e) => {
-                      setUser({ ...user, Username: e.target.value });
-                    }}
-                    autoComplete="off"
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.Password">
-                  <Form.Label>Password: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter password"
-                    value={user.password}
-                    onChange={(e) => {
-                      setUser({ ...user, Password: e.target.value });
-                    }}
-                    autoComplete="off"
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.DOB">
-                  <Form.Label>DOB: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter DOB"
-                    value={user.dob}
-                    onChange={(e) => {
-                      setUser({ ...user, DOB: e.target.value });
-                    }}
-                    autoComplete="off"
-                  />
-                </Form.Group>
-                <p></p>
-                <Form.Group controlId="form.Phone">
-                  <Form.Label>Phone number: </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter phone number"
-                    value={user.phone}
-                    onChange={(e) =>
-                      setUser({ ...user, Phone: e.target.value })
-                    }
-                    autoComplete="phone-number"
-                  />
-                </Form.Group>
-                <p></p>
-                <Button
-                  onClick={() => submitUser(user)}
-                  variant="primary"
-                  type="reset"
-                >
-                  Submit
-                </Button>
-              </Form>
-            </Container>
-          </div>
-        </modal>
+      <modal>
+        <div id="form" style={{ display: "none" }}>
+          <Container>
+            <h3> Register New User</h3>
+            <Form>
+              <button class="btn-close" onClick={() => formDisplay()}>
+                X
+              </button>
+              <Form.Group controlId="form.Gender">
+                <Form.Label>Gender: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter gender"
+                  value={user.Gender}
+                  onChange={(e) => {
+                    setUser({ ...user, Gender: e.target.value });
+                  }}
+                  autoComplete="off"
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.Name">
+                <Form.Label>Name: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter full name"
+                  value={user.name}
+                  onChange={(e) => {
+                    setUser({ ...user, Name: e.target.value });
+                  }}
+                  autoComplete="off"
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.Email">
+                <Form.Label>Email: </Form.Label>
+                <Form.Control
+                  type="text"
+                  autocomplete="false"
+                  placeholder="Enter email"
+                  value={user.email}
+                  onChange={(e) => {
+                    setUser({ ...user, Email: e.target.value });
+                  }}
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.Username">
+                <Form.Label>Username: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter username"
+                  value={user.username}
+                  onChange={(e) => {
+                    setUser({ ...user, Username: e.target.value });
+                  }}
+                  autoComplete="off"
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.Password">
+                <Form.Label>Password: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter password"
+                  value={user.password}
+                  onChange={(e) => {
+                    setUser({ ...user, Password: e.target.value });
+                  }}
+                  autoComplete="off"
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.DOB">
+                <Form.Label>DOB: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter DOB"
+                  value={user.dob}
+                  onChange={(e) => {
+                    setUser({ ...user, DOB: e.target.value });
+                  }}
+                  autoComplete="off"
+                />
+              </Form.Group>
+              <p></p>
+              <Form.Group controlId="form.Phone">
+                <Form.Label>Phone number: </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter phone number"
+                  value={user.phone}
+                  onChange={(e) => setUser({ ...user, Phone: e.target.value })}
+                  autoComplete="phone-number"
+                />
+              </Form.Group>
+              <p></p>
+              <Button
+                onClick={() => submitUser(user)}
+                variant="primary"
+                type="reset"
+              >
+                Submit
+              </Button>
+            </Form>
+          </Container>
+        </div>
+      </modal>
       {edituser ? (
         <div>
           <Container>
@@ -369,8 +364,9 @@ export default function Home() {
               </Form.Group>
               <p></p>
               <Button
-                onClick={() => updateUser(edituser, { searchuser })}
+                onClick={() => updateUser(edituser)}
                 variant="primary"
+                type="reset"
               >
                 Update
               </Button>
@@ -382,7 +378,7 @@ export default function Home() {
       <p></p>
       <h2>Users Details:</h2>
       <table class="styled-table">
-        <thead> 
+        <thead>
           <tr>
             <th>Gender</th>
             <th>Name</th>
@@ -427,6 +423,6 @@ export default function Home() {
           })}
         </tbody>
       </table>
-      </div>
+    </div>
   );
 }

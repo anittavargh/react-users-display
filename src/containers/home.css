@@ -47,10 +47,15 @@
     font-family: sans-serif;
 }
 button{ 
-    background-color: #009879; /* Blue background color */        
+    background-color: #009879;         
     color: white; /* Text color */   
     padding: 10px 24px;     
 
+}
+
+.btn-close{
+    background-color: #dddddd;
+    float: right;
 }
 
 .form.label{

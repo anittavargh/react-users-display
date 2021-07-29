@@ -61,3 +61,11 @@ button{
 .form.label{
     font-family: sans-serif;
 }
+.menubar{
+    display: flex;
+    flex-direction: row;
+    float: right;
+    margin-right: 10px;
+    display: inline-flexbox;
+}
+

@@ -6,15 +6,8 @@ import Modal from "react-bootstrap/Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ModalBody from "react-bootstrap/ModalBody";
 import ModalHeader from "react-bootstrap/ModalHeader";
-// import ModalFooter from "react-bootstrap/ModalFooter";
 import ModalTitle from "react-bootstrap/ModalTitle";
 import ReactPaginate from "react-paginate";
-
-//  import { useForm } from "react-hook-form";
-// import { yupResolver } from '@hookform/resolvers/yup';
-// import { Formik } from "formik";
-// import * as yup from "yup";
-// import { TablePagination } from 'react-pagination-table';
 
 import axios from "axios";
 import "./home.css";
@@ -81,17 +74,17 @@ export default function Home() {
     console.log(selectedPage);
     if (selectedPage >= 1) {
       setOffset(selectedPage * postsPerPage);
-      setPageCount(selectedPage)
+      setPageCount(selectedPage);
       console.log(offset);
     } else {
       setOffset(selectedPage);
-      setPageCount(selectedPage)
+      setPageCount(selectedPage);
     }
   };
 
   const submitUser = (user) => {
-    const currentOffset=offset
-    console.log("current",currentOffset)
+    const currentOffset = offset;
+    console.log("current", currentOffset);
     if (Boolean(editusername)) {
       const users = JSON.parse(localStorage.getItem("users"));
       const getUsers = users.filter((user) => user.Username !== editusername);
@@ -99,9 +92,9 @@ export default function Home() {
       localStorage.clear();
       localStorage.setItem("users", JSON.stringify(getUsers));
       setState(getUsers);
-      getData()
+      getData();
       setModalmessage("User is updated!!");
-      setEditusername()
+      setEditusername();
       handleShow();
       setUser({});
       formDisplay();
@@ -134,7 +127,7 @@ export default function Home() {
         localStorage.clear();
         localStorage.setItem("users", JSON.stringify(data));
         setState(data);
-        getData()
+        getData();
         setUser({});
       }
       formDisplay();
@@ -151,7 +144,7 @@ export default function Home() {
       localStorage.clear();
       localStorage.setItem("users", JSON.stringify(getUsers));
       setState(getUsers);
-      getData()
+      getData();
       setModalmessage(`User with username: ${username} is removed`);
       handleShow();
     } else {
@@ -173,7 +166,7 @@ export default function Home() {
     const users = JSON.parse(localStorage.getItem("users"));
     if (!Boolean(userinfo)) {
       setState(users);
-      getData()
+      getData();
     } else {
       const matchingUsers = [];
       users.map((user) => {

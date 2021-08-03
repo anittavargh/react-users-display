@@ -2,18 +2,42 @@ import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import { Button } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
+import Modal from "react-bootstrap/Modal";
+import "bootstrap/dist/css/bootstrap.min.css";
+import ModalBody from "react-bootstrap/ModalBody";
+import ModalHeader from "react-bootstrap/ModalHeader";
+// import ModalFooter from "react-bootstrap/ModalFooter";
+import ModalTitle from "react-bootstrap/ModalTitle";
+import ReactPaginate from "react-paginate";
+
+//  import { useForm } from "react-hook-form";
+// import { yupResolver } from '@hookform/resolvers/yup';
+// import { Formik } from "formik";
+// import * as yup from "yup";
+// import { TablePagination } from 'react-pagination-table';
+
 import axios from "axios";
 import "./home.css";
 
 export default function Home() {
   const [state, setState] = useState([]);
   const [user, setUser] = useState({});
-  const [userinfo, setUserinfo] = useState("");
-  const [edituser, setEdituser] = useState();
   const [editusername, setEditusername] = useState();
+  const [show, setShow] = useState(false);
+  const [modalmessage, setModalmessage] = useState("");
+
+  const [postsPerPage] = useState(15);
+  const [offset, setOffset] = useState(0);
+  const [posts, setAllPosts] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
 
   useEffect(() => {
+    getData();
+  }, [offset]);
+
+  const getData = () => {
     const users = localStorage.getItem("users");
+    console.log(users);
     if (localStorage.getItem("users") === null) {
       axios
         .get("https://randomuser.me/api/0.8/?results=20")
@@ -37,39 +61,79 @@ export default function Home() {
           });
           localStorage.setItem("users", JSON.stringify(userDetails));
           setState(userDetails);
+          const slice = state.slice(0 + offset, postsPerPage + offset);
+          setAllPosts(slice);
+          setPageCount(Math.ceil(state.length / postsPerPage));
         })
         .catch((err) => err.message);
     } else {
       const parsedUser = JSON.parse(users);
       setState(parsedUser);
+      const slice = parsedUser.slice(0 + offset, postsPerPage + offset);
+      setAllPosts(slice);
+      setPageCount(Math.ceil(parsedUser.length / postsPerPage));
     }
-  }, []);
+  };
+
+  const handlePageClick = (event) => {
+    console.log(event.selected);
+    const selectedPage = event.selected;
+    console.log(selectedPage);
+    if (selectedPage >= 1) {
+      setOffset(selectedPage * postsPerPage);
+      console.log(offset);
+    } else {
+      setOffset(selectedPage);
+    }
+  };
 
   const submitUser = (user) => {
-    const isUsernameAvailable = Boolean(user.Username);
-    const isEmailAvailable = Boolean(user.Email);
-    const isPasswordAvailable = Boolean(user.Password);
-    console.log({ isUsernameAvailable, isEmailAvailable, isPasswordAvailable });
-    if (!user.Username || !user.Email || !user.Password) {
-      alert(
-        "Enter user details --> mandatory to input Username, Email && Password"
-      );
-      setUser({});
-    } else if (
-      state.find((person) => person.Username === user.Username) != null
-    ) {
-      alert("Username already exists, enter a new username");
-      setUser({});
-    } else {
-      alert("User is registered!!");
-      const data = JSON.parse(localStorage.getItem("users"));
-      data.push(user);
+    if (Boolean(editusername)) {
+      const users = JSON.parse(localStorage.getItem("users"));
+      const getUsers = users.filter((user) => user.Username !== editusername);
+      getUsers.push(user);
       localStorage.clear();
-      localStorage.setItem("users", JSON.stringify(data));
-      setState(data);
+      localStorage.setItem("users", JSON.stringify(getUsers));
+      setState(getUsers);
+      setAllPosts(getUsers);
+      setModalmessage("User is updated!!");
+      handleShow();
       setUser({});
+      formDisplay();
+    } else {
+      const isUsernameAvailable = Boolean(user.Username);
+      const isEmailAvailable = Boolean(user.Email);
+      const isPasswordAvailable = Boolean(user.Password);
+      console.log({
+        isUsernameAvailable,
+        isEmailAvailable,
+        isPasswordAvailable,
+      });
+      if (!user.Username || !user.Email || !user.Password) {
+        setModalmessage(
+          "Enter user details --> mandatory to input Username, Email && Password"
+        );
+        handleShow();
+        setUser({});
+      } else if (
+        state.find((person) => person.Username === user.Username) != null
+      ) {
+        setModalmessage("Username already exists, enter a new username");
+        handleShow();
+        setUser({});
+      } else {
+        setModalmessage("User is registered!!");
+        handleShow();
+        const data = JSON.parse(localStorage.getItem("users"));
+        data.push(user);
+        localStorage.clear();
+        localStorage.setItem("users", JSON.stringify(data));
+        setState(data);
+        setAllPosts(data);
+        setUser({});
+      }
+      formDisplay();
     }
-    formDisplay();
   };
 
   const deleteUser = (username) => {
@@ -82,48 +146,46 @@ export default function Home() {
       localStorage.clear();
       localStorage.setItem("users", JSON.stringify(getUsers));
       setState(getUsers);
-      alert(`User  with username: ${username} has been removed`);
+      setAllPosts(getUsers);
+      setModalmessage(`User with username: ${username} is removed`);
+      handleShow();
     } else {
-      alert(`User with username: ${username} is not removed`);
+      setModalmessage(`User with username: ${username} is not removed`);
+      handleShow();
     }
   };
 
   const editUser = (username) => {
+    var x = document.getElementById("form");
+    x.style.display = "block";
     const users = JSON.parse(localStorage.getItem("users"));
     const getUser = users.find((user) => user.Username == username);
     setEditusername(username);
-    setEdituser(getUser);
-    if (!getUser) {
-      alert(`User  with username: ${username} does not exist`);
-    }
-  };
-  const updateUser = (edituser) => {
-    const users = JSON.parse(localStorage.getItem("users"));
-    const getUsers = users.filter((user) => user.Username !== editusername);
-    getUsers.push(edituser);
-    localStorage.clear();
-    localStorage.setItem("users", JSON.stringify(getUsers));
-    setState(getUsers);
-    setEdituser();
-    alert("User is updated!!");
+    setUser(getUser);
   };
 
   const filterTable = (userinfo) => {
     const users = JSON.parse(localStorage.getItem("users"));
-    const getUsers = users
-      .map((user) => {
-        if (Object.values(user).indexOf(userinfo) > -1) {
-          return user;
-        } else if (user.DOB == userinfo || user.Phone == userinfo) {
-          return user;
-        }
-      })
-      .filter((e) => e);
-    if (getUsers.length === 0) {
+    if (!Boolean(userinfo)) {
       setState(users);
-      alert("Search does not match any user");
     } else {
-      setState(getUsers);
+      const matchingUsers = [];
+      users.map((user) => {
+        const userData = Object.values(user);
+        const checkForSubstring = userData
+          .map((element) => {
+            const stringifyElement = element.toString();
+            if (stringifyElement.includes(userinfo)) {
+              return user;
+            }
+          })
+          .filter((element) => element);
+
+        if (checkForSubstring.length !== 0) {
+          matchingUsers.push(checkForSubstring[0]);
+        }
+      });
+      setAllPosts(matchingUsers);
     }
   };
 
@@ -136,8 +198,23 @@ export default function Home() {
     }
   };
 
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   return (
     <div>
+      <div id="alert">
+        <Modal show={show} onHide={handleClose}>
+          <ModalHeader as="span">
+            <ModalTitle as="h4">Hi</ModalTitle>
+          </ModalHeader>
+          <ModalBody as="section">{modalmessage}</ModalBody>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal>
+      </div>
+      &nbsp;&nbsp;
       <div className="menubar">
         <Form.Group controlId="form.user">
           <p></p>
@@ -145,27 +222,22 @@ export default function Home() {
             type="text"
             placeholder="user detail"
             value={user.userinfo}
-            onChange={(e) => setUserinfo(e.target.value.trimEnd())}
+            onChange={(e) => {
+              console.log(e.value);
+              filterTable(e.target.value.trim());
+            }}
           />
         </Form.Group>
-        &nbsp;&nbsp;
-        <Button
-          className="pull"
-          variant="primary"
-          onClick={() => filterTable(userinfo)}
-        >
-          Search
-        </Button>
-        &nbsp;&nbsp;
+        &nbsp;&nbsp; &nbsp;&nbsp;
         <p></p>
         <button className="register" onClick={() => formDisplay()}>
-          Enter new user
+          + Create New User
         </button>
       </div>
       <modal>
         <div id="form" style={{ display: "none" }}>
           <Container>
-            <h3> Register New User</h3>
+            <h3> User</h3>
             <Form>
               <button class="btn-close" onClick={() => formDisplay()}>
                 X
@@ -174,7 +246,8 @@ export default function Home() {
                 <Form.Label>Gender: </Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Enter gender"
+                  name="gender"
+                  placeholder={user.Gender}
                   value={user.Gender}
                   onChange={(e) => {
                     setUser({ ...user, Gender: e.target.value });
@@ -187,8 +260,8 @@ export default function Home() {
                 <Form.Label>Name: </Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Enter full name"
-                  value={user.name}
+                  placeholder={user.Name}
+                  value={user.Name}
                   onChange={(e) => {
                     setUser({ ...user, Name: e.target.value });
                   }}
@@ -201,8 +274,8 @@ export default function Home() {
                 <Form.Control
                   type="text"
                   autocomplete="false"
-                  placeholder="Enter email"
-                  value={user.email}
+                  placeholder={user.Email}
+                  value={user.Email}
                   onChange={(e) => {
                     setUser({ ...user, Email: e.target.value });
                   }}
@@ -213,8 +286,8 @@ export default function Home() {
                 <Form.Label>Username: </Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Enter username"
-                  value={user.username}
+                  placeholder={user.Username}
+                  value={user.Username}
                   onChange={(e) => {
                     setUser({ ...user, Username: e.target.value });
                   }}
@@ -225,9 +298,9 @@ export default function Home() {
               <Form.Group controlId="form.Password">
                 <Form.Label>Password: </Form.Label>
                 <Form.Control
-                  type="text"
-                  placeholder="Enter password"
-                  value={user.password}
+                  type="password"
+                  placeholder={user.Password}
+                  value={user.Password}
                   onChange={(e) => {
                     setUser({ ...user, Password: e.target.value });
                   }}
@@ -238,9 +311,9 @@ export default function Home() {
               <Form.Group controlId="form.DOB">
                 <Form.Label>DOB: </Form.Label>
                 <Form.Control
-                  type="text"
-                  placeholder="Enter DOB"
-                  value={user.dob}
+                  type="date"
+                  placeholder={user.DOB}
+                  value={user.DOB}
                   onChange={(e) => {
                     setUser({ ...user, DOB: e.target.value });
                   }}
@@ -251,9 +324,9 @@ export default function Home() {
               <Form.Group controlId="form.Phone">
                 <Form.Label>Phone number: </Form.Label>
                 <Form.Control
-                  type="text"
-                  placeholder="Enter phone number"
-                  value={user.phone}
+                  type="number"
+                  placeholder={user.Phone}
+                  value={user.Phone}
                   onChange={(e) => setUser({ ...user, Phone: e.target.value })}
                   autoComplete="phone-number"
                 />
@@ -270,113 +343,9 @@ export default function Home() {
           </Container>
         </div>
       </modal>
-      {edituser ? (
-        <div>
-          <Container>
-            <h3> Edit User</h3>
-            <Form>
-              <button class="btn-close" onClick={() => formDisplay()}>
-                {" "}
-                X{" "}
-              </button>
-              <Form.Group controlId="form.Gender">
-                <Form.Label>Gender: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder={edituser.Gender}
-                  value={edituser.Gender}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Gender: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.Name">
-                <Form.Label>Name: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter full name"
-                  value={edituser.Name}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Name: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.Email">
-                <Form.Label>Email: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter email"
-                  value={edituser.Email}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Email: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.Username">
-                <Form.Label>Username: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter username"
-                  value={edituser.Username}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Username: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.Password">
-                <Form.Label>Password: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter password"
-                  value={edituser.Password}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Password: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.DOB">
-                <Form.Label>DOB: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter DOB"
-                  value={edituser.DOB}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, DOB: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Form.Group controlId="form.Phone">
-                <Form.Label>Phone number: </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter phone number"
-                  value={edituser.Phone}
-                  onChange={(e) =>
-                    setEdituser({ ...edituser, Phone: e.target.value })
-                  }
-                />
-              </Form.Group>
-              <p></p>
-              <Button
-                onClick={() => updateUser(edituser)}
-                variant="primary"
-                type="reset"
-              >
-                Update
-              </Button>
-            </Form>
-          </Container>
-        </div>
-      ) : null}
       <p></p>
       <p></p>
-      <h2>Users Details:</h2>
+      <h2>Users Details</h2>
       <table class="styled-table">
         <thead>
           <tr>
@@ -385,14 +354,13 @@ export default function Home() {
             <th>Email</th>
             <th>DOB</th>
             <th>Username</th>
-            <th>Password</th>
             <th>Phone</th>
             <th>Edit</th>
             <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          {state.map((item, index) => {
+          {posts.map((item, index) => {
             return (
               <tr key={index}>
                 <td>{item.Gender}</td>
@@ -400,7 +368,6 @@ export default function Home() {
                 <td>{item.Email}</td>
                 <td>{item.DOB}</td>
                 <td>{item.Username}</td>
-                <td>{item.Password}</td>
                 <td>{item.Phone}</td>
                 <td>
                   <button
@@ -423,6 +390,27 @@ export default function Home() {
           })}
         </tbody>
       </table>
+      <div>
+        <p></p>
+        <p></p>
+        <p></p>
+        <p>
+          <ReactPaginate
+            previousLabel={"previous"}
+            nextLabel={"next"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            pageCount={pageCount}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            subContainerClassName={"pages pagination"}
+            activeClassName={"active"}
+          />
+        </p>
+        <p></p>
+        <p></p>
+        <p></p>
+      </div>
     </div>
   );
 }

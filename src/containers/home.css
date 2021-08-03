@@ -84,7 +84,7 @@ table tbody tr {
 
 .pagination {
     margin-top: 45px;
-    margin-left: -40px;
+    margin-left: 20px;
     display: flex;
     list-style: none;
     outline: none;
